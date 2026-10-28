@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="day">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Starry · 小岛工作台</title>
+<style>
+  :root{
+    --teal:#5ec79b; --teal-soft:#e3f7ee;
+    --yellow:#ffd166; --yellow-soft:#fff3d6;
+    --blue:#6ec3ff; --blue-soft:#e4f3ff;
+    --pink:#ff9ec4; --pink-soft:#ffe7f1;
+    --ink:#4a4453; --ink-soft:#8a8294;
+    --card:#ffffff; --line:#eef0f5;
+    --sky-top:#eaf6ff; --sky-bot:#fef3e7;
+    --ground:#fbeede;
+    --shadow:0 12px 30px rgba(120,120,160,.16);
+  }
+  [data-theme="night"]{
+    --ink:#ece8f5; --ink-soft:#a59fc0;
+    --card:#322c47; --line:#433d5e;
+    --sky-top:#2a2350; --sky-bot:#3a2c58;
+    --ground:#2b2542;
+    --teal-soft:#244a3e; --yellow-soft:#4a3f22; --blue-soft:#273a52; --pink-soft:#4a2c40;
+    --shadow:0 12px 30px rgba(0,0,0,.4);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:"PingFang SC","Microsoft YaHei","Helvetica Neue",sans-serif;
+    background:linear-gradient(180deg,var(--sky-top),var(--sky-bot) 70%,var(--ground));
+    color:var(--ink); line-height:1.8; min-height:100vh;
+    transition:background .6s ease,color .4s ease;
+    overflow-x:hidden;
+  }
+  /* floating decor */
+  .cloud{position:fixed;font-size:42px;opacity:.8;z-index:0;animation:drift 26s linear infinite;pointer-events:none}
+  .cloud.c1{top:90px;left:-60px;animation-duration:34s}
+  .cloud.c2{top:220px;left:-120px;font-size:30px;animation-duration:42s;animation-delay:-10s}
+  .cloud.c3{top:140px;right:-80px;left:auto;animation-duration:38s;animation-direction:reverse}
+  @keyframes drift{from{transform:translateX(0)}to{transform:translateX(120vw)}}
+  [data-theme="night"] .cloud{opacity:.35}
+
+  .wrap{max-width:960px;margin:0 auto;padding:0 20px 80px;position:relative;z-index:1}
+
+  /* header */
+  .site-header{
+    position:sticky;top:0;z-index:20;
+    display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+    padding:14px 18px;margin:0 -20px 30px;
+    background:color-mix(in srgb,var(--card) 82%,transparent);
+    backdrop-filter:blur(10px);border-bottom:1px solid var(--line);
+  }
+  .brand-bubble{
+    background:linear-gradient(135deg,var(--pink),var(--blue));
+    color:#fff;font-weight:800;padding:8px 18px;border-radius:999px;
+    text-decoration:none;font-size:15px;box-shadow:var(--shadow);white-space:nowrap;
+  }
+  .site-nav{display:flex;gap:6px;flex-wrap:wrap;flex:1}
+  .site-nav a{color:var(--ink-soft);text-decoration:none;font-size:14px;padding:6px 10px;border-radius:10px;transition:.15s}
+  .site-nav a:hover{background:var(--pink-soft);color:var(--ink)}
+  .header-tools{display:flex;align-items:center;gap:10px}
+  .status-pill{font-size:12px;color:var(--ink-soft);background:var(--teal-soft);padding:5px 12px;border-radius:999px;white-space:nowrap}
+  .theme-toggle{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);
+    border-radius:999px;padding:5px 12px;cursor:pointer;color:var(--ink);font-size:13px;font-weight:600}
+  .theme-toggle-track{width:38px;height:20px;border-radius:999px;background:var(--blue);position:relative;transition:.3s}
+  .theme-toggle-orb{position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:.3s}
+  [data-theme="night"] .theme-toggle-track{background:var(--yellow)}
+  [data-theme="night"] .theme-toggle-orb{left:20px}
+
+  /* hero */
+  .hero{display:flex;gap:24px;align-items:stretch;flex-wrap:wrap;margin-bottom:46px}
+  .hero-main{flex:1;min-width:280px;background:var(--card);border-radius:28px;padding:30px;
+    box-shadow:var(--shadow);border:1px solid var(--line);position:relative;overflow:hidden}
+  .hero-main::after{content:"🏝️";position:absolute;right:-6px;bottom:-10px;font-size:90px;opacity:.12}
+  .badge{display:inline-flex;align-items:center;gap:10px;background:var(--teal-soft);border-radius:16px;padding:8px 14px}
+  .badge .ava{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--pink),var(--yellow));
+    display:flex;align-items:center;justify-content:center;font-size:22px}
+  .badge b{display:block;font-size:15px}
+  .badge small{color:var(--ink-soft);font-size:12px}
+  .eyebrow{margin-top:18px;color:var(--teal);font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase}
+  .hero h1{font-size:30px;font-weight:800;margin:6px 0 10px;line-height:1.3}
+  .hero-sub{color:var(--ink-soft);font-size:15px}
+  .hero-actions{margin-top:22px;display:flex;gap:12px;flex-wrap:wrap}
+  .btn{border:none;border-radius:14px;padding:12px 22px;font-size:14px;font-weight:700;cursor:pointer;
+    text-decoration:none;display:inline-block;transition:transform .15s,box-shadow .15s}
+  .btn:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+  .btn.primary{background:linear-gradient(135deg,var(--pink),var(--blue));color:#fff}
+  .btn.dashed{background:var(--yellow-soft);color:var(--ink);border:2px dashed var(--yellow)}
+
+  .hero-side{flex:0 0 200px;display:flex;flex-direction:column;gap:12px}
+  .mini{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--shadow);text-align:center}
+  .mini .em{font-size:34px}
+  .mini .t{font-size:13px;color:var(--ink-soft);margin-top:4px}
+  .mini .v{font-weight:800;font-size:20px;color:var(--pink)}
+
+  /* sections */
+  .sec{margin:46px 0 18px}
+  .kicker{color:var(--teal);font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase}
+  .sec h2{font-size:24px;font-weight:800;margin:4px 0}
+  .sec .lead{color:var(--ink-soft);font-size:14.5px}
+
+  /* about postcard */
+  .postcard{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:24px;box-shadow:var(--shadow);
+    display:flex;gap:20px;flex-wrap:wrap;align-items:center;margin-top:14px}
+  .postcard .ava{width:96px;height:96px;border-radius:20px;background:linear-gradient(135deg,var(--pink),var(--yellow));
+    display:flex;align-items:center;justify-content:center;font-size:46px;flex:0 0 auto}
+  .postcard p{flex:1;min-width:240px;font-size:15px}
+  .cloud-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;width:100%}
+  .cloud-tags span{background:var(--blue-soft);color:var(--ink);border-radius:999px;padding:5px 14px;font-size:13px;font-weight:600}
+
+  /* bulletin board */
+  .board{background:var(--yellow-soft);border:2px dashed var(--yellow);border-radius:22px;padding:22px;margin-top:14px;position:relative}
+  .pin-row{display:flex;justify-content:center;gap:40px;margin-bottom:6px}
+  .pin-row span{width:12px;height:12px;border-radius:50%;background:var(--pink);box-shadow:0 2px 0 rgba(0,0,0,.1)}
+  .note{background:var(--card);border-radius:14px;padding:14px 16px;margin:10px 0;box-shadow:var(--shadow);border:1px solid var(--line)}
+  .note .q{font-weight:700;font-size:15px;display:flex;gap:8px;align-items:center}
+  .note .q .leaf{margin-left:auto;font-size:18px}
+  .note .a{color:var(--ink-soft);font-size:14px;margin-top:6px}
+
+  /* focus grid */
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:14px}
+  .fcard{border-radius:20px;padding:20px;box-shadow:var(--shadow);border:1px solid var(--line);background:var(--card)}
+  .fcard .em{font-size:30px}
+  .fcard h3{margin:8px 0 6px;font-size:17px}
+  .fcard p{font-size:13.5px;color:var(--ink-soft)}
+  .fcard.t{background:var(--teal-soft)} .fcard.t h3{color:var(--teal)}
+  .fcard.y{background:var(--yellow-soft)} .fcard.y h3{color:#c99a2e}
+  .fcard.b{background:var(--blue-soft)} .fcard.b h3{color:#3a8fd0}
+  .fcard.p{background:var(--pink-soft)} .fcard.p h3{color:#d4608f}
+
+  /* contact */
+  .contact{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:24px;box-shadow:var(--shadow);margin-top:14px}
+  .contact .row{font-size:15.5px;margin:8px 0;display:flex;gap:10px;align-items:center}
+  .contact a{color:var(--pink);font-weight:700;text-decoration:none}
+  .contact a:hover{text-decoration:underline}
+
+  footer{text-align:center;color:var(--ink-soft);font-size:13px;margin-top:50px}
+  footer .h{color:var(--pink)}
+  .mascot{position:fixed;right:18px;bottom:14px;font-size:46px;z-index:5;animation:bob 3s ease-in-out infinite}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+
+  @media(max-width:720px){
+    .hero-side{flex:none;flex-direction:row;width:100%}
+    .mini{flex:1}
+    .grid{grid-template-columns:1fr}
+    .site-nav{display:none}
+  }
+</style>
+</head>
+<body>
+  <span class="cloud c1">☁️</span>
+  <span class="cloud c2">🌥️</span>
+  <span class="cloud c3">☁️</span>
+  <span class="mascot">🦊</span>
+
+  <div class="wrap">
+    <!-- HEADER -->
+    <header class="site-header">
+      <a class="brand-bubble" href="#top">🌷 Starry 的小岛</a>
+      <nav class="site-nav">
+        <a href="#about">关于</a>
+        <a href="#bulletin">公告</a>
+        <a href="#focus">方向</a>
+        <a href="#contact">联系</a>
+      </nav>
+      <div class="header-tools">
+        <span class="status-pill">🟢 小岛人才站 online</span>
+        <button class="theme-toggle" id="themeBtn" aria-label="切换昼夜">
+          <span class="theme-toggle-track"><span class="theme-toggle-orb"></span></span>
+          <span id="themeLabel">白天</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- HERO -->
+    <section class="hero" id="top">
+      <div class="hero-main">
+        <div class="badge">
+          <span class="ava">🌷</span>
+          <span><b>Starry（小帅）</b><small>岛主 / 人才猎头</small></span>
+        </div>
+        <p class="eyebrow">LLM 基座算法 · 人才盘点</p>
+        <h1>Starry 的小岛工作台</h1>
+        <p class="hero-sub">这里是一座给 LLM 基座算法人才与好机会停靠的小岛。我把人才地图、行业动态和发光的念头都晒在海风里，慢慢造一间可以招待候选人与团队的工具屋。</p>
+        <div class="hero-actions">
+          <a class="btn primary" href="#focus">看看专注方向</a>
+          <a class="btn dashed" href="#contact">联系岛主</a>
+        </div>
+      </div>
+      <div class="hero-side">
+        <div class="mini"><div class="em">🗺️</div><div class="v">565+</div><div class="t">盘点人才</div></div>
+        <div class="mini"><div class="em">💌</div><div class="v">100%</div><div class="t">诚实匹配</div></div>
+      </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section class="sec" id="about">
+      <p class="kicker">About</p>
+      <h2>没有耀眼履历，也想把小灯挂起来。</h2>
+      <div class="postcard">
+        <div class="ava">🌷</div>
+        <p>履历没有烟花，但我还在认真收集星星。专注 LLM 文本基础模型的预训练与后训练方向，做人才盘点，也做诚实的职业顾问。喜欢把混乱的招聘需求拆成可以摸到的按钮、流程和小工具，也相信好的匹配不只看薪资，还看技术追求与节奏是不是合拍。</p>
+        <div class="cloud-tags">
+          <span>LLM 预训练</span><span>LLM 后训练</span><span>人才盘点</span>
+          <span>RLHF</span><span>Scaling</span><span>职业规划</span><span>候选人体验</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- BULLETIN -->
+    <section class="sec" id="bulletin">
+      <p class="kicker">Bulletin Board</p>
+      <h2>岛上公告板</h2>
+      <p class="lead">把一些还在发光的想法，钉成几张会被海风翻动的便签。</p>
+      <div class="board">
+        <div class="pin-row"><span></span><span></span><span></span></div>
+        <div class="note">
+          <div class="q">📌 最近在忙什么？<span class="leaf">🌿</span></div>
+          <div class="a">基座人才名单完成新一轮分层核实，累计覆盖 <b>565+</b> 名 LLM 预训练 / 后训练方向研究者。</div>
+        </div>
+        <div class="note">
+          <div class="q">📌 为什么做人才盘点？<span class="leaf">🌿</span></div>
+          <div class="a">因为我想给自己的招聘留一座小岛：不急着证明什么，只把走过的路、踩过的坑、偶尔发亮的念头晒出来，等后来的人路过时能少迷路一点。</div>
+        </div>
+        <div class="note">
+          <div class="q">📌 我相信什么样的技术人？<span class="leaf">🌿</span></div>
+          <div class="a">我相信温柔但有用的人：既有把复杂问题拆成小按钮的能力，也允许一点好奇、一点审美、一点不那么功利的理想主义。</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOCUS -->
+    <section class="sec" id="focus">
+      <p class="kicker">Workbench</p>
+      <h2>专注方向</h2>
+      <p class="lead">把日常工作拆成几块可以摸到的小木板。</p>
+      <div class="grid">
+        <div class="fcard t"><div class="em">🧠</div><h3>预训练 Pre-training</h3><p>追踪 LLM 预训练团队：数据、训练框架、Scaling、Infra 等核心岗位的人才图谱与市场动态。</p></div>
+        <div class="fcard y"><div class="em">🤝</div><h3>后训练 Post-training</h3><p>聚焦 SFT / RLHF / RMA 等对齐方向，覆盖 Alignment、Reward Modeling、Agentic Training 人才版图。</p></div>
+        <div class="fcard b"><div class="em">🗺️</div><h3>人才盘点 Talent Mapping</h3><p>维护 500+ 人规模的基座算法人才库，覆盖高校实验室、头部企业研究团队的梯队分布。</p></div>
+        <div class="fcard p"><div class="em">🌱</div><h3>职业规划 Career</h3><p>为候选提供诚实的市场判断：团队真实情况、技术路线匹配度、长期成长空间——不夸大，不隐瞒。</p></div>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section class="sec" id="contact">
+      <p class="kicker">Contact</p>
+      <h2>给岛主递一封信</h2>
+      <div class="contact">
+        <div class="row">📧 邮箱：<a href="mailto:cc77135@qq.com">cc77135@qq.com</a></div>
+        <div class="row">💬 微信：<b>lovely040916</b></div>
+        <div class="row">🐙 GitHub：<a href="https://github.com/Starry20040916">github.com/Starry20040916</a></div>
+        <p style="margin-top:10px;color:var(--ink-soft);font-size:14px">想聊行业、看机会，或只是茶余饭后交流，都欢迎来信～</p>
+      </div>
+    </section>
+
+    <footer>© 2026 Starry 的小岛工作台 · Made with <span class="h">♥</span> · Hosted on GitHub Pages</footer>
+  </div>
+
+  <script>
+    (function(){
+      var root=document.documentElement;
+      var btn=document.getElementById('themeBtn');
+      var label=document.getElementById('themeLabel');
+      var saved=localStorage.getItem('island-theme');
+      if(saved==='night'){root.setAttribute('data-theme','night');label.textContent='夜晚';}
+      btn.addEventListener('click',function(){
+        var night=root.getAttribute('data-theme')!=='night';
+        root.setAttribute('data-theme',night?'night':'day');
+        label.textContent=night?'夜晚':'白天';
+        localStorage.setItem('island-theme',night?'night':'day');
+      });
+    })();
+  </script>
+</body>
+</html>
